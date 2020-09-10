@@ -9,6 +9,16 @@ SceneビューだけでなくGameビュー、ビルド後のアプリでも動�
 
 ## セットアップ
 
+upm経由でインストールする場合は `https://github.com/ina-amagami/OverdrawForURP.git` を指定して下さい。
+
+```manifest.json
+{
+  "dependencies": {
+    "jp.amagamina.overdraw-for-urp": "https://github.com/ina-amagami/OverdrawForURP.git"
+  }
+}
+```
+
 1. UniversalRenderPipelineAssetにあるGeneral > RendererListの一覧に「OverdrawRenderer」を追加して下さい。
 
 2. ビルド後のアプリで使用する場合はScripting Define Symbolsに`USE_RUNTIME_OVERDRAW`を追加して下さい。
