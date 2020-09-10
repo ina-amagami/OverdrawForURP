@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace OverdrawForURP
 {
-	internal class OverdrawPass : ScriptableRenderPass
+	public class OverdrawPass : ScriptableRenderPass
 	{
 		private string profilerTag;
 		private FilteringSettings filteringSettings;
