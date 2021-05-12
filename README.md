@@ -31,6 +31,7 @@ upm経由でインストールする場合は `https://github.com/ina-amagami/Ov
 
 - Unity 2019.4.8f1 / URP 7.4.3
 - Unity 2020.1.3f1 / URP 8.2.0
+- Unity 2020.3.2f1 / URP 10.4.0
 
 ## ライセンス条項
 

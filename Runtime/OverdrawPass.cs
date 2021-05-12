@@ -10,7 +10,11 @@ namespace OverdrawForURP
 		private string profilerTag;
 		private FilteringSettings filteringSettings;
 		private List<ShaderTagId> tagIdList = new List<ShaderTagId>();
+#if UNITY_2020_2_OR_NEWER
+		private ProfilingSampler sampler;
+#else
 		private ProfilingSampler profilingSampler;
+#endif
 		private bool isOpaque;
 		private Material material;
 
@@ -19,7 +23,12 @@ namespace OverdrawForURP
 			this.profilerTag = profilerTag;
 			this.isOpaque = isOpaque;
 
+#if UNITY_2020_2_OR_NEWER
+			profilingSampler = new ProfilingSampler(nameof(OverdrawPass));
+			sampler = new ProfilingSampler(profilerTag);
+#else
 			profilingSampler = new ProfilingSampler(profilerTag);
+#endif
 			tagIdList.Add(new ShaderTagId("UniversalForward"));
 			tagIdList.Add(new ShaderTagId("LightweightForward"));
 			tagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
@@ -31,7 +40,11 @@ namespace OverdrawForURP
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
 		{
 			CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
+#if UNITY_2020_2_OR_NEWER
+			using (new ProfilingScope(cmd, sampler))
+#else
 			using (new ProfilingScope(cmd, profilingSampler))
+#endif
 			{
 				var camera = renderingData.cameraData.camera;
 				if (isOpaque)

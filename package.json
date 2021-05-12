@@ -1,6 +1,6 @@
 {
   "name": "jp.amagamina.overdraw-for-urp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "OverdrawForURP",
   "description": "It's scene overdraw view available in Universal Render Pipeline.",
   "author": "ina-amagami <ina@amagamina.jp>",
