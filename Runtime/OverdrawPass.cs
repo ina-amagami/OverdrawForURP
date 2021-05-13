@@ -39,10 +39,11 @@ namespace OverdrawForURP
 
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
 		{
-			CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 #if UNITY_2020_2_OR_NEWER
+			CommandBuffer cmd = CommandBufferPool.Get();
 			using (new ProfilingScope(cmd, sampler))
 #else
+			CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 			using (new ProfilingScope(cmd, profilingSampler))
 #endif
 			{
