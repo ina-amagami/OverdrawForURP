@@ -9,6 +9,8 @@ SceneビューだけでなくGameビュー、ビルド後のアプリでも動�
 
 詳しい解説は[**こちら**](https://amagamina.jp/overdraw-for-urp/)
 
+※Unity公式でもOverdraw表示はURP12（Unity2021.2）より[**RenderingDebugger**](https://docs.unity3d.com/ja/Packages/com.unity.render-pipelines.universal@14.0/manual/whats-new/urp-whats-new.html)という機能でサポートされるようになりました。
+
 ## インストール
 
 upm経由でインストールする場合は `https://github.com/ina-amagami/OverdrawForURP.git` を指定して下さい。
