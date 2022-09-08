@@ -7,6 +7,10 @@
 It's scene overdraw view available in Universal Render Pipeline.
 It works not only in the Scene view, but also in the Game view and in the app after it has been built.
 
+## Information
+
+Unity official support for overdraw began in URP12 (Unity2021.2) with a feature [**RenderingDebugger**](https://docs.unity3d.com/ja/Packages/com.unity.render-pipelines.universal@14.0/manual/whats-new/urp-whats-new.html).
+
 ## Install
 
 To install via upm, specify `https://github.com/ina-amagami/OverdrawForURP.git`.
