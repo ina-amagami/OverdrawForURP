@@ -33,7 +33,7 @@ upm経由でインストールする場合は `https://github.com/ina-amagami/Ov
 
 ## 動作確認バージョン
 
-Unity6 / URP 17.0.3
+Unity 6000.0.36f1 / URP 17.0.3
 
 ## ライセンス条項
 
