@@ -22,9 +22,9 @@ namespace OverdrawForURP
 				return;
 			}
 			opaquePass = new OverdrawPass("Overdraw Render Opaque", RenderQueueRange.opaque, opaqueShader, true);
-			opaquePass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+			opaquePass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
 			transparentPass = new OverdrawPass("Overdraw Render Transparent", RenderQueueRange.transparent, transparentShader, false);
-			transparentPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+			transparentPass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
 #endif
 		}
 

@@ -1,54 +1,47 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.RenderGraphModule;
 using System.Collections.Generic;
 
 namespace OverdrawForURP
 {
 	public class OverdrawPass : ScriptableRenderPass
 	{
-		private string profilerTag;
-		private FilteringSettings filteringSettings;
-		private List<ShaderTagId> tagIdList = new List<ShaderTagId>();
-#if UNITY_2020_2_OR_NEWER
-		private ProfilingSampler sampler;
-#else
-		private ProfilingSampler profilingSampler;
-#endif
-		private bool isOpaque;
-		private Material material;
+		private FilteringSettings m_FilteringSettings;
+		private List<ShaderTagId> m_TagIdList = new List<ShaderTagId>();
+		private bool m_IsOpaque;
+		private Material m_Material;
+		
+		private class PassData
+		{
+			internal bool isOpaque;
+			internal RendererListHandle rendererListHdl;
+			internal UniversalCameraData cameraData;
+		}
 
 		public OverdrawPass(string profilerTag, RenderQueueRange renderQueueRange, Shader shader, bool isOpaque)
 		{
-			this.profilerTag = profilerTag;
-			this.isOpaque = isOpaque;
+			m_IsOpaque = isOpaque;
 
-#if UNITY_2020_2_OR_NEWER
-			profilingSampler = new ProfilingSampler(nameof(OverdrawPass));
-			sampler = new ProfilingSampler(profilerTag);
-#else
 			profilingSampler = new ProfilingSampler(profilerTag);
-#endif
-			tagIdList.Add(new ShaderTagId("UniversalForward"));
-			tagIdList.Add(new ShaderTagId("LightweightForward"));
-			tagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
-			filteringSettings = new FilteringSettings(renderQueueRange, LayerMask.NameToLayer("Everything"));
+			m_TagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
+			m_TagIdList.Add(new ShaderTagId("UniversalForward"));
+			m_TagIdList.Add(new ShaderTagId("UniversalForwardOnly"));
+			m_FilteringSettings = new FilteringSettings(renderQueueRange, LayerMask.NameToLayer("Everything"));
 
-			material = CoreUtils.CreateEngineMaterial(shader);
+			m_Material = CoreUtils.CreateEngineMaterial(shader);
 		}
 
+		[Obsolete]
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
 		{
-#if UNITY_2020_2_OR_NEWER
-			CommandBuffer cmd = CommandBufferPool.Get();
-			using (new ProfilingScope(cmd, sampler))
-#else
-			CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
+			var cmd = CommandBufferPool.Get();
 			using (new ProfilingScope(cmd, profilingSampler))
-#endif
 			{
 				var camera = renderingData.cameraData.camera;
-				if (isOpaque)
+				if (m_IsOpaque)
 				{
 					if (renderingData.cameraData.isSceneViewCamera || 
 						(camera.TryGetComponent(out UniversalAdditionalCameraData urpCameraData) &&
@@ -60,13 +53,58 @@ namespace OverdrawForURP
 				context.ExecuteCommandBuffer(cmd);
 				cmd.Clear();
 
-				var sortFlags = isOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
-				var drawSettings = CreateDrawingSettings(tagIdList, ref renderingData, sortFlags);
-				drawSettings.overrideMaterial = material;
-				context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filteringSettings);
+				var sortFlags = m_IsOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
+				var drawSettings = CreateDrawingSettings(m_TagIdList, ref renderingData, sortFlags);
+				drawSettings.overrideMaterial = m_Material;
+				context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref m_FilteringSettings);
 			}
 			context.ExecuteCommandBuffer(cmd);
 			CommandBufferPool.Release(cmd);
 		}
+		
+		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+		{
+			var cameraData = frameData.Get<UniversalCameraData>();
+			var renderingData = frameData.Get<UniversalRenderingData>();
+			var lightData = frameData.Get<UniversalLightData>();
+
+			using (var builder =
+			       renderGraph.AddRasterRenderPass<PassData>(passName, out var passData, profilingSampler))
+			{
+				var resourceData = frameData.Get<UniversalResourceData>();
+				
+				passData.isOpaque = m_IsOpaque;
+				passData.cameraData = cameraData;
+
+				var sortFlags = m_IsOpaque ? passData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
+				var drawingSettings = RenderingUtils.CreateDrawingSettings(m_TagIdList, renderingData, passData.cameraData, lightData, sortFlags);
+				drawingSettings.overrideMaterial = m_Material;
+
+				var param = new RendererListParams(renderingData.cullResults, drawingSettings, m_FilteringSettings);
+				passData.rendererListHdl = renderGraph.CreateRendererList(param);
+				builder.UseRendererList(passData.rendererListHdl);
+				
+				builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
+				builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture);
+				
+				builder.SetRenderFunc((PassData data, RasterGraphContext rgContext) =>
+					ExecutePass(data, rgContext));
+			}
+		}
+        
+        private static void ExecutePass(PassData data, RasterGraphContext context)
+        {
+	        var camera = data.cameraData.camera;
+	        if (data.isOpaque)
+	        {
+		        if (data.cameraData.isSceneViewCamera || 
+		            (camera.TryGetComponent(out UniversalAdditionalCameraData urpCameraData) &&
+		             urpCameraData.renderType == CameraRenderType.Base))
+		        {
+			        context.cmd.ClearRenderTarget(RTClearFlags.ColorDepth, Color.black, 1f, 0);
+		        }
+	        }
+	        context.cmd.DrawRendererList(data.rendererListHdl);
+        }
 	}
 }

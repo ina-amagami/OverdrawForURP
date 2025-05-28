@@ -43,7 +43,7 @@ namespace OverdrawForURP.Editor
 			for (int i = 0; i < propArray.arraySize; ++i)
 			{
 				SerializedProperty prop = propArray.GetArrayElementAtIndex(i);
-				if (prop.objectReferenceValue is ForwardRendererData renderer)
+				if (prop.objectReferenceValue is UniversalRendererData renderer)
 				{
 					if (renderer.rendererFeatures.Count > 0 &&
 						renderer.rendererFeatures[0].name.Equals(RendererFeatureName))
