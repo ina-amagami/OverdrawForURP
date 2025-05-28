@@ -7,6 +7,8 @@
 It's scene overdraw view available in Universal Render Pipeline.
 It works not only in the Scene view, but also in the Game view and in the app after it has been built.
 
+Supports Unity6 & RenderGraph.
+
 ## Information
 
 Unity official support for overdraw began in URP12 (Unity2021.2) with a feature [**RenderingDebugger**](https://docs.unity3d.com/ja/Packages/com.unity.render-pipelines.universal@14.0/manual/whats-new/urp-whats-new.html).
@@ -56,13 +58,11 @@ The target pipeline assets cannot be saved while using Overdraw. When updating r
 
 ## Verified
 
-- Unity 2019.4.8f1 / URP 7.4.3
-- Unity 2020.1.3f1 / URP 8.2.0
-- Unity 2020.3.2f1 / URP 10.4.0
+Unity 6000.0.36f1 / URP 17.0.3
 
 ## License
 
 This software is released under the MIT License.
 https://opensource.org/licenses/mit-license.php
 
-Copyright (c) 2020 ina-amagami (ina@amagamina.jp)
+Copyright (c) 2020-2025 ina-amagami (ina@amagamina.jp)
